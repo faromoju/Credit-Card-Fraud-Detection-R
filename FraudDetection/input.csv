@@ -1,0 +1,2 @@
+Month,Transaction_Time,Amount,Use_Chip,Merchant_State,MCC,Is Fraud
+1,12,81,1,1,5499,Is Fraud

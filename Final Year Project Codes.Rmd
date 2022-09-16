@@ -1,0 +1,528 @@
+---
+title: "Credit Card Fraud Detection"
+author: "TOBI"
+date: "3/25/2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+setwd("C:/Users/farom/Downloads/School/Final Year Projects/New Project Latest Codes")
+
+* 1.00. Loading the dataset into the global variables.
+```{r}
+setwd("C:/Users/farom/Downloads/School/Final Year Projects/New Project Latest Codes")
+creditcard = read.csv("User0_credit_card_transactions.csv")
+names(creditcard)
+```
+* 1.01. Deleting some useless columns off the dataset
+```{r}
+creditcard = creditcard[,-c(1:3,5,9:10,12,14)]
+names(creditcard)
+```
+* 1.02. Load dplyr and rename some variables using the function dplyr::rename().
+* 1.03. View column names, structure and summary of sorted data for insight
+* 1.04. Display the creditcard dataset
+```{r}
+library(dplyr) # A grammar for data manipulation
+creditcard = creditcard %>% 
+  rename(
+    Is_Fraud = Is.Fraud.,
+    Use_Chip = Use.Chip,
+    Transaction_Time = Time,
+    Merchant_State = Merchant.State
+    )
+summary(creditcard)
+str(creditcard)
+```
+* 1.05. Create separate dataset for Multi variate analysis in Section 2.30.
+```{r}
+Multicreditcard = cbind.data.frame(creditcard)
+```
+* 1.06. Check for missing values (NA's) in the records using the summary function.
+* 1.07. Use DataExplorer & mice packages to further analyze missing records and fix values.
+```{r}
+summary(creditcard)
+
+library(DataExplorer) # automate visual exploration of data and treatment
+plot_intro(creditcard)
+plot_missing(creditcard)
+```
+* 1.08. To enhance uni-variate statistical analyses, the factor type variables will be encoded using numbers and converted to integer data type and stored in the "creditcard" object.
+* 1.09. Run table function on concerned variables to correctly pick out value entries.
+* 1.10. Confirm that all factor types have been converted to numeric and view "creditcard" object.
+```{r}
+attach(creditcard)
+library(tidyr)
+
+"Transaction_Time"
+creditcard <- creditcard %>%
+separate(Transaction_Time, c("H", "M"), sep=":", remove = FALSE) %>%
+mutate(H = as.numeric(H)) %>%
+mutate(Transaction_Time = (H))
+creditcard = creditcard[,-c(3:4)]
+
+"Amount"
+table(Amount)
+creditcard$Amount = as.integer(creditcard$Amount)
+
+"Merchant_State"
+table(Merchant_State)
+creditcard$Merchant_State = as.character(creditcard$Merchant_State)
+creditcard$Merchant_State[creditcard$Merchant_State == "CA"] <- 1
+creditcard$Merchant_State[creditcard$Merchant_State == "NE"] <- 2
+creditcard$Merchant_State[creditcard$Merchant_State == "IL"] <- 3
+creditcard$Merchant_State[creditcard$Merchant_State == "MO"] <- 4
+creditcard$Merchant_State[creditcard$Merchant_State == "Switzerland"] <- 5
+creditcard$Merchant_State[creditcard$Merchant_State == "IA"] <- 6
+creditcard$Merchant_State[creditcard$Merchant_State == "TX"] <- 7
+creditcard$Merchant_State[creditcard$Merchant_State == "Estonia"] <- 8
+creditcard$Merchant_State[creditcard$Merchant_State == "NJ"] <- 9
+creditcard$Merchant_State[creditcard$Merchant_State == "NV"] <- 10
+creditcard$Merchant_State[creditcard$Merchant_State == "NY"] <- 11
+creditcard$Merchant_State[creditcard$Merchant_State == "Japan"] <- 12
+creditcard$Merchant_State[creditcard$Merchant_State == "AZ"] <- 13
+creditcard$Merchant_State[creditcard$Merchant_State == "UT"] <- 14
+creditcard$Merchant_State[creditcard$Merchant_State == "FL"] <- 15
+creditcard$Merchant_State[creditcard$Merchant_State == "MI"] <- 16
+creditcard$Merchant_State[creditcard$Merchant_State == "Mexico"] <- 17
+creditcard$Merchant_State[creditcard$Merchant_State == "WA"] <- 18
+creditcard$Merchant_State[creditcard$Merchant_State == "OH"] <- 19
+creditcard$Merchant_State[creditcard$Merchant_State == "Dominican Republic"] <- 20
+creditcard$Merchant_State[creditcard$Merchant_State == "NM"] <- 21
+creditcard$Merchant_State[creditcard$Merchant_State == "China"] <- 22
+creditcard$Merchant_State[creditcard$Merchant_State == "SC"] <- 23
+creditcard$Merchant_State[creditcard$Merchant_State == "AK"] <- 24
+creditcard$Merchant_State[creditcard$Merchant_State == "PA"] <- 25
+creditcard$Merchant_State[creditcard$Merchant_State == "VA"] <- 26
+creditcard$Merchant_State[creditcard$Merchant_State == "Portugal"] <- 27
+creditcard$Merchant_State[creditcard$Merchant_State == "HI"] <- 28
+creditcard$Merchant_State[creditcard$Merchant_State == "CT"] <- 29
+creditcard$Merchant_State[creditcard$Merchant_State == "MA"] <- 30
+creditcard$Merchant_State[creditcard$Merchant_State == "MN"] <- 31
+creditcard$Merchant_State[creditcard$Merchant_State == "CO"] <- 32
+creditcard$Merchant_State[creditcard$Merchant_State == "Italy"] <- 33
+creditcard$Merchant_State[creditcard$Merchant_State == "GA"] <- 34
+creditcard$Merchant_State[creditcard$Merchant_State == "Philippines"] <- 35
+creditcard$Merchant_State[creditcard$Merchant_State == "Jamaica"] <- 36
+creditcard$Merchant_State[creditcard$Merchant_State == "AR"] <- 37
+creditcard$Merchant_State[creditcard$Merchant_State == "Canada"] <- 38
+creditcard$Merchant_State[creditcard$Merchant_State == "OR"] <- 39
+creditcard$Merchant_State[creditcard$Merchant_State == "WI"] <- 40
+creditcard$Merchant_State = as.integer(creditcard$Merchant_State)
+
+"Use_Chip"
+table(Use_Chip)
+creditcard$Use_Chip = as.character(creditcard$Use_Chip)
+creditcard$Use_Chip[creditcard$Use_Chip == "Swipe Transaction"] <- 1
+creditcard$Use_Chip[creditcard$Use_Chip == "Online Transaction"] <- 2
+creditcard$Use_Chip[creditcard$Use_Chip == "Chip Transaction"] <- 3
+creditcard$Use_Chip = as.integer(creditcard$Use_Chip)
+
+"Is_Fraud"
+table(Is_Fraud)
+creditcard$Is_Fraud = as.character(creditcard$Is_Fraud)
+creditcard$Is_Fraud[creditcard$Is_Fraud == "No"] <- 0
+creditcard$Is_Fraud[creditcard$Is_Fraud == "Yes"] <- 1
+creditcard$Is_Fraud = as.integer(creditcard$Is_Fraud)
+
+str(creditcard)
+summary(creditcard)
+```
+* 1.11. Use DataExplorer to check for missing values again as it is noted that data is missing in Merchant_State column
+```{r}
+summary(creditcard)
+
+library(DataExplorer) # automate visual exploration of data and treatment
+plot_intro(creditcard)
+plot_missing(creditcard)
+```
+
+*1.12. Remove NA columns
+```{r}
+creditcard <- na.omit(creditcard)
+Multicreditcard <-na.omit(Multicreditcard)
+```
+
+#### 2.0  Univariate Analysis for Features
+
+* 0.1% of the transactions analysed were correctly labeled as fraudulent transactions. The goal of this aspect of the project is to identify the most relevant features in dataset in relation to the likelihood of a transaction being fraudulent.
+```{r}
+# Function to visualize histogram and boxplot of numerical variables using ggplot
+ 
+library(ggplot2) # For graphs and visualizations
+library(gridExtra) # To plot multiple ggplot graphs in a grid
+
+plot_histogram_n_boxplot = function(variable, variableNameString, binw){
+  h = ggplot(data = creditcard, aes(x= variable))+
+    labs(x = variableNameString,y ='count')+
+    geom_histogram(fill = 'dark green',col = 'black',binwidth = binw)+
+    geom_vline(aes(xintercept = mean(variable)),color="red", linetype="dashed", size=1)
+    
+  b = ggplot(data = creditcard, aes('',variable))+ 
+    geom_boxplot(outlier.colour = 'blue',col = 'red',outlier.shape = 19)+
+    labs(x = '',y = variableNameString)+ coord_flip()
+  grid.arrange(h,b,ncol = 1)
+}
+```
+* 2.01. Histogram and boxplot visualizations for the Month variable
+```{r}
+plot_histogram_n_boxplot(creditcard$Month, 'Month', 1)
+```
+* The distribution appears fairly normal.
+
+* 2.02. Histogram and boxplot visualizations for the Transaction Time variable
+```{r}
+plot_histogram_n_boxplot(creditcard$Transaction_Time, 'Transaction Time', 1)
+```
+* The distribution appears to be right skewed.
+
+* 2.03. Density Plot and boxplot visualizations for the Amount variable
+```{r}
+ggplot(creditcard, aes(x=Amount)) + geom_density() + geom_vline(aes(xintercept = mean(Amount)),color="red", linetype="dashed", size=1)
+ggplot(creditcard, aes(group=1, x=Amount, outlier.colour = 'blue',col = 'blue',outlier.shape = 19)) + geom_boxplot()
+```
+* The distribution appears to be right skewed with multiple outliers on both sides.
+
+* 2.04. Histogram and boxplot visualizations for the Use_Chip variable
+```{r}
+plot_histogram_n_boxplot(creditcard$Use_Chip, 'Use Chip', 1)
+```
+* The distribution appears to be right skewed with two outliers detected.
+
+* 2.05. Histogram and boxplot visualizations for the Merchant_State variable
+```{r}
+plot_histogram_n_boxplot(creditcard$Merchant_State, 'Merchant State', 1)
+```
+* The distribution appears heavily right skewed multiple outliers detected.
+
+* 2.06. Density Plot and boxplot visualizations for the MCC variable
+```{r}
+ggplot(creditcard, aes(x=MCC)) + geom_density() + geom_vline(aes(xintercept = mean(MCC)),color="red", linetype="dashed", size=1)
+ggplot(creditcard, aes(group=1, x=MCC, outlier.colour = 'blue',col = 'blue',outlier.shape = 19)) + geom_boxplot()
+```
+* The distribution appears fairly normal with multiple outliers detected on both sides
+
+* 2.07. Histogram and boxplot visualizations for the Is_Fraud variable
+```{r}
+plot_histogram_n_boxplot(creditcard$Is_Fraud, 'Is_Fraud', 1)
+```
+* The distribution appears right skewed.
+* The dataset is heavily imbalanced in favour of the non fraud transactions.
+
+#### Bivariate Analysis for Features
+
+* 3.01. We go on to plot percent stacked bar chart to see the effect of independent variables on the probability of a transaction being fraudulent.
+* 3.02. Create function to draw percent stacked bar chart to see the effect of independent variables on the probability of Is_Fraud using ggplot.
+
+```{r}
+library(ggplot2)
+
+plot_stacked_barchart = function(variable, variableNameString){
+  ggplot(Multicreditcard, aes(fill = Is_Fraud, x = variable)) + 
+    geom_bar(position="fill")+
+    labs(title = variableNameString, y = '', x = '')+
+    scale_fill_manual(values=c("#0073C2FF", "#EFC000FF"))
+}
+```
+
+* 3.03. Is_Fraud vs Month
+```{R}
+plot_stacked_barchart(Multicreditcard$Month, 'Month')
+```
+* Most fraudulent transactions occurred in the 10th and 11th months (October and November)
+
+* 3.04. Is_fraud vs Amount
+```{R}
+plot_stacked_barchart(Multicreditcard$Amount, 'Amount')
+```
+* No specific inferences could be drawn from the chart due to the number of unique entries on the amount feature.
+
+* 3.05. Is_fraud vs Use_Chip
+```{R}
+plot_stacked_barchart(Multicreditcard$Use_Chip, 'Use Chip')
+```
+* Online transactions had the most fraudulent transactions
+
+* 3.06. Is_fraud vs Merchant_State
+```{R}
+plot_stacked_barchart(Multicreditcard$Merchant_State, 'Merchant State')
+```
+* Most fraudulent transactions occured in CA.
+
+#### Multivariate Analysis For Features
+
+* 3.07. Use the psych package to carry out multivariate analysis
+* By default corr.test produces pairwise "Pearson" correlation matrix for the entire dataset
+```{r}
+library(psych) # multivariate analysis, FA and PCA
+library(corrplot)
+
+corr.test(creditcard) # for all features
+M = cor(creditcard)
+corrplot(M, method = 'number')
+```
+The correlation tests show there is little correltion between the columns and the dependent variable. In fact, the results of the correlation test are incredibly low.
+
+* 3.08. Correlation tests significance level for the dataset features.
+```{r}
+# Check the correlation significance levels of the features
+
+# Transaction features
+cor.test(creditcard$Is_Fraud,creditcard$Month)$p.value #significant
+cor.test(creditcard$Is_Fraud,creditcard$Transaction_Time)$p.value #Not significant
+cor.test(creditcard$Is_Fraud,creditcard$Amount)$p.value #Not significant
+cor.test(creditcard$Is_Fraud,creditcard$Use_Chip)$p.value #Not significant
+cor.test(creditcard$Is_Fraud,creditcard$Merchant_State)$p.value #Not significant
+cor.test(creditcard$Is_Fraud,creditcard$MCC)$p.value #significant
+```
+* There exists correlation significance between label the 3 out of 5 features in the dataset at p = 0.05. The features transaction time and amount had correlation significance above the 0.05 cut off.
+
+### 4.00. Machine Learning Analysis for Balanced Dataset
+* 4.01. Load mlbench and caret packages respectively.
+* 4.02. Convert integer values to numeric and ensure that dependent variable "Is_Fraud" is of the factor class
+```{r}
+library(mlbench)
+library(caret)
+
+creditcard$Is_Fraud = as.factor(as.integer(creditcard$Is_Fraud))
+```
+* 4.03. Load ROSE package
+* ROSE (Random Over-Sampling Examples) is a package for dealing with imbalanced datasets. It does this by either over sampling or under sampling.
+```{r}
+library(ROSE)
+creditcard_balanced_over <- ovun.sample(Is_Fraud ~ ., data = creditcard, method = "both",N = 19963)$data
+table(creditcard_balanced_over$Is_Fraud)
+```
+* 4.04. Perform feature selection.
+* 4.05. Feature Selection carried out using Boruta package.
+```{r}
+library(Boruta)
+
+# Feature Selection operation
+set.seed(7)
+boruta = Boruta(creditcard_balanced_over$Is_Fraud~.,data = creditcard_balanced_over, doTrace = 5, maxRuns = 100)
+plot(boruta, las = 2, cex.axis = 0.5)
+
+
+attStats(boruta)
+
+
+# create object and limit features to the 5 confirmed features from the boruta analysis + the dependent variable
+
+col_order = c("Month", "Transaction_Time", "Amount", "Use_Chip","Merchant_State","MCC","Is_Fraud")
+#View(creditcard_balanced_over)
+creditcard_balanced_over = creditcard_balanced_over[, col_order]
+str(creditcard_balanced_over)
+levels(creditcard_balanced_over$Is_Fraud)
+```
+* The feature selection operation using the Boruta package works as follows:
+
+* Firstly, it introduces randomness into the data set by producing shuffled copies of all the features of 
+  interest (these are referred to as shadow features).
+
+* Next, it trains a random forest classifier on the extended data set and applies a feature importance measure 
+  (the default is Mean Decrease Accuracy) to ascertain the relevance of each of the features. Those with higher 
+  means are classified as more important.
+
+* Afterwards, at every given iteration, it checks whether a real feature has a higher importance than the best 
+  of its shadow features (in other words, it checks to see if the feature has a higher Z-score than the maximum 
+  Z-score of its shadow features) and therefore eliminates features which are termed highly irrelevant.
+
+*  Lastly, the Boruta algorithm stops either when all features gets confirmed or rejected or it when reaches a 
+  specified limit of random forest runs
+
+* 4.06. Split the features into training and validation groups (objects)
+* 4.07. Split out validation dataset
+* 4.08. Do this by creating a list of 70% of the rows in the original dataset to serve as training set
+```{r}
+#Not a fraudulent transaction
+No = creditcard_balanced_over[creditcard_balanced_over$Is_Fraud == 0,]
+
+#A fraudulent transaction
+Yes = creditcard_balanced_over[creditcard_balanced_over$Is_Fraud == 1,]
+
+set.seed(7)
+validationIndex = createDataPartition(creditcard_balanced_over$Is_Fraud, p=0.70, list = FALSE)
+
+#select 30% of the data for validation
+
+validation = creditcard_balanced_over[-validationIndex,]
+
+#use the remaining 70% of data to train the model
+dataset = creditcard_balanced_over[validationIndex,]
+
+# Check that the distribution of the dependent variable is similar in train and test sets
+prop.table(table(creditcard_balanced_over$Is_Fraud))
+prop.table(table(dataset$Is_Fraud))
+prop.table(table(validation$Is_Fraud))
+```
+* The derived figures show that the ratio of the "No":"Yes" was proportionally split
+
+* 4.09. Evaluate 5 Machine Learning Algorithms
+* 4.10. Linear Algorithms - Logistic Regression (LG), Linear Discriminate Analysis (LDA), Naive Bayes (NB)
+* 4.11. Non-Linear Algorithms - K-Nearest Neighbors (KNN), Classification and Regression Trees (CART) and Support Vector Machine (SVM)
+* 4.12. ENSEMBLE METHODS: Random Forest (RF) and XGBoost (XGB)
+* 4.13. Analysis is done using 10-fold cross validation with 3 repeats
+```{r}
+trainControl = trainControl(method = "repeatedcv", number = 10, repeats = 3)
+metric = "Accuracy"
+
+#1 LG
+set.seed(7)
+fit.glm = train(Is_Fraud~., data=dataset, method="glm", metric=metric, trControl=trainControl)
+
+#2 LDA
+set.seed(7)
+fit.lda = train(Is_Fraud~., data=dataset, method="lda", metric=metric, trControl=trainControl)
+
+#3 NB
+set.seed(7)
+fit.naive_bayes = train(Is_Fraud~., data=dataset, method="naive_bayes", metric=metric, trControl=trainControl)
+
+#4 SVM
+set.seed(7)
+fit.svmLinear = train(Is_Fraud~., data=dataset, method="svmLinear", metric=metric, trControl=trainControl)
+
+#5 XGB
+set.seed(7)
+fit.xgbTree = train(Is_Fraud~., data=dataset, method="xgbTree", metric=metric, trControl=trainControl)
+
+#6 KNN
+set.seed(7)
+fit.knn = train(Is_Fraud~., data=dataset, method="knn", metric=metric, trControl=trainControl)
+
+#7 CART
+set.seed(7)
+fit.cart = train(Is_Fraud~., data=dataset, method="rpart", metric=metric, trControl=trainControl)
+
+#8 Random Forest
+set.seed(7)
+fit.rf = train(Is_Fraud~., data=dataset, method="rf", metric=metric, trControl = trainControl)
+
+# Compare algorithms
+results = resamples(list(LG=fit.glm, LDA=fit.lda, NB=fit.naive_bayes, SVM=fit.svmLinear, XGB=fit.xgbTree, KNN=fit.knn, CART=fit.cart, RF=fit.rf))
+
+                          
+summary(results)
+dotplot(results)
+```
+* Top three performing algorithms are RF, XGB and KNN with mean accuracies of 0.9997, 0.9995 and 0.9967 respectively
+
+* Tune the top three learning algorithms
+
+* 4.14. Tuning for the Random Forest  (RF) learning algorithm
+```{r}
+trainControl = trainControl(method="repeatedcv", number=10, repeats=3) 
+metric = "Accuracy"
+
+#RF
+set.seed(7)
+grid = expand.grid(mtry = seq(1,10, by=1))
+fit.RF_tuned = train(Is_Fraud~.,data = dataset, method="rf", metric=metric, tuneGrid=grid, trControl=trainControl)
+fit.RF_tuned
+```
+* Tuning improved the accuracy of the RF model.
+
+* 4.15. Tuning for the XGBoost (XGB) learning algorithm
+```{r}
+trainControl = trainControl(method="repeatedcv", number=10, repeats=3) 
+metric = "Accuracy"
+
+#XGB
+set.seed(7)
+grid = expand.grid(
+  nrounds = 100,
+  max_depth = 6,
+  eta = 0.3,
+  gamma = 0,
+  colsample_bytree = 1,
+  min_child_weight = 1,
+  subsample = 1
+)
+fit.XGB_tuned = train(Is_Fraud~.,data = dataset, method="xgbTree", metric=metric, tuneGrid=grid, trControl=trainControl)
+fit.XGB_tuned
+```
+* Tuning did not improve the accuracy of the XGB model.
+
+* 4.16. Tuning for the K-Nearest Neighbors  (KNN) learning algorithm
+```{r}
+trainControl = trainControl(method="repeatedcv", number=10, repeats=3) 
+metric = "Accuracy"
+
+#KNN
+set.seed(7)
+grid = expand.grid(k = seq(1,10, by=1))
+fit.KNN_tuned = train(Is_Fraud~.,data = dataset, method="knn", metric=metric, tuneGrid=grid, trControl=trainControl)
+fit.KNN_tuned
+```
+* Tuning improved the accuracy of the KNN model.
+
+* 4.17. Finalize by building the best 3 Model
+* 4.18. Make predictions and build confusion matrix for RF Model
+```{r}
+rfPredict = predict(fit.rf, newdata = validation)
+confusionMatrix(factor(rfPredict), factor(validation$Is_Fraud))
+```
+* RF model performed at an accuracy of 0.9997 with only 2 error calls leading to a specificity of 1.000 but a 
+  sensitivity score of 0.9993. Kappa was very high at 0.9993.
+  
+* 4.19. Make predictions and build confusion matrix for XGB Model
+```{r}
+xgbPredict = predict(fit.xgbTree, newdata = validation)
+confusionMatrix(factor(xgbPredict), factor(validation$Is_Fraud))
+```
+* XGB model performed at an accuracy of 0.9995 with only 3 error calls leading to a specificity of 1.000 but a 
+  sensitivity score of 0.9990. Kappa was very high at 0.999.
+
+* 4.20. Make predictions and build confusion matrix for KNN Model
+```{r}
+knnPredict = predict(fit.KNN_tuned, newdata = validation)
+confusionMatrix(factor(knnPredict), factor(validation$Is_Fraud))
+```
+* KNN model performed at an accuracy of 0.9987 with only 8 error calls leading to a specificity of 1.000 but a 
+  sensitivity score of 0.9974. Kappa was very high at 0.9973.
+
+* Calculate ROC and PR for all 3 models
+  
+* 4.21. Calculate AUC(ROC and PR) for RF Tuned Model
+```{r}
+library(PRROC)
+sapply(rfPredict, class)
+sapply(validation, class)
+pred = as.numeric(as.character(rfPredict))
+valid = as.character(as.factor(validation$Is_Fraud))
+valid = as.numeric(as.character(validation$Is_Fraud))
+prroc_obj = roc.curve(scores.class0 = pred, weights.class0 = valid, curve = TRUE)
+prroc_obj1 = pr.curve(scores.class0 = pred, weights.class0 = NULL, curve = TRUE)
+plot(prroc_obj)
+plot(prroc_obj1)
+```
+* 4.22. Calculate AUC(ROC and PR) for XGB Tuned Model
+```{r}
+library(PRROC)
+sapply(xgbPredict, class)
+sapply(validation, class)
+pred = as.numeric(as.character(xgbPredict))
+valid = as.character(as.factor(validation$Is_Fraud))
+valid = as.numeric(as.character(validation$Is_Fraud))
+prroc_obj = roc.curve(scores.class0 = pred, weights.class0 = valid, curve = TRUE)
+plot(prroc_obj)
+plot(prroc_obj1)
+```
+
+* 4.23. Calculate AUC(ROC and PR) for KNN Tuned Model
+```{r}
+library(PRROC)
+sapply(knnPredict, class)
+sapply(validation, class)
+pred = as.numeric(as.character(knnPredict))
+valid = as.character(as.factor(validation$Is_Fraud))
+valid = as.numeric(as.character(validation$Is_Fraud))
+prroc_obj = roc.curve(scores.class0 = pred, weights.class0 = valid, curve = TRUE)
+prroc_obj1 = pr.curve(scores.class0 = pred, weights.class0 = NULL, curve = TRUE)
+plot(prroc_obj)
+plot(prroc_obj1)
+```
